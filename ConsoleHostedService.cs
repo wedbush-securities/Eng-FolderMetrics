@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Diagnostics;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 
@@ -34,32 +35,26 @@ namespace Eng_FolderMetrics
                         string[] folders = appSettingValue.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
                             .Select(f => f.Trim())
                             .ToArray();
-
-                        foreach (string folder in folders)
+                                            
+                        ParallelOptions options = new ParallelOptions
                         {
-                            try
-                            {
-                                string sanitizedFolder = Path.GetFullPath(folder);
+                            MaxDegreeOfParallelism = 4
+                        };
+                        Parallel.ForEach(folders, FolderProcessor);
+                        /*
+                        var watch = Stopwatch.StartNew();
+                        add parallel processing
+                        watch.Stop();
+                        _logger.Information($"Parallel foreach loop | Time Taken : {watch.ElapsedMilliseconds} ms.");
 
-                                // Rest of the code...
-
-                                long totalBytes = 0;
-                                int fileCount = 0;
-
-                                foreach (string file in Directory.EnumerateFiles(sanitizedFolder, "*.*", SearchOption.AllDirectories))
-                                {
-                                    long length = GetFileLength(file);
-                                    totalBytes += length;
-                                    fileCount++;
-                                }
-
-                                _logger.Information($"There are {totalBytes} bytes in {fileCount} files under {sanitizedFolder}");
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.Error(ex, $"Invalid folder path: {folder}");
-                            }
+                        var watchclassic = Stopwatch.StartNew();
+                        foreach (var folder in folders)
+                        {
+                            FolderProcessor(folder);
                         }
+                        watchclassic.Stop();
+                        _logger.Information($"Classic foreach loop | Time Taken : {watchclassic.ElapsedMilliseconds} ms.");
+                        */
                     }
                     catch (Exception ex)
                     {
@@ -74,6 +69,30 @@ namespace Eng_FolderMetrics
             });
 
             return Task.CompletedTask;
+        }
+
+        private void FolderProcessor(string folder)
+        {
+            try
+            {
+                string sanitizedFolder = Path.GetFullPath(folder);
+
+                long totalBytes = 0;
+                int fileCount = 0;
+
+                foreach (string file in Directory.EnumerateFiles(sanitizedFolder, "*.*", SearchOption.AllDirectories))
+                {
+                    long length = GetFileLength(file);
+                    totalBytes += length;
+                    fileCount++;
+                }
+
+                _logger.Information($"There are {totalBytes} bytes in {fileCount} files under {sanitizedFolder}");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, $"Invalid folder path: {folder}");
+            }
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
