@@ -32,14 +32,7 @@ namespace Eng_FolderMetrics
             {
                 Log.CloseAndFlush();
             }
-            
-
-            
         }
-
-
-
-
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices(services =>
