@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 
@@ -17,25 +18,11 @@ namespace Eng_FolderMetrics
                 .WriteTo.File("logs\\log.txt", rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 
-            // create host
-            var host = CreateHostBuilder(args).Build();
-
-            // add logic to get input from user and analyze folder
-            Console.WriteLine("Enter the path to the folder you want to analyze: ");
-            string path = Console.ReadLine();
-
-            // create worker and assign path property
-
-            var worker = ActivatorUtilities.CreateInstance<Worker>(host.Services);
-            worker.Path = path;
-            //call worker method to analyze folder
-            worker.AnalyzeFolder();
-
-            
+            // user logger below
             try
             {
-                Log.Information("Starting up");
-               host.Run();
+                Log.Information("Starting up the application");
+                CreateHostBuilder(args).Build().Run();
             }
             catch (Exception ex)
             {
@@ -43,21 +30,21 @@ namespace Eng_FolderMetrics
             }
             finally
             {
-                Log.CloseAndFlush(); // close logger
+                Log.CloseAndFlush();
             }
+            
+
+            
         }
 
-     public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .UseSerilog() // use serilog
-                     .ConfigureServices((hostContext, services) =>
-                {   
-                    // create singleton worker
-                    services.AddSingleton<Worker>();
-                    
-                    //services.AddHostedService<Worker>(); // assign worker property
-                   // services.AddSingleton<Worker>(new Worker() { Path = args[0] }); // assign path property
 
+
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureServices(services =>
+                {
+                    services.AddHostedService<ConsoleHostedService>().AddSerilog(Log.Logger);
                 });
     }
 
