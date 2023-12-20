@@ -44,7 +44,6 @@ namespace Eng_FolderMetrics
                                 // Rest of the code...
 
                                 long totalBytes = 0;
-                                long largestFile = 0;
                                 int fileCount = 0;
 
                                 foreach (string file in Directory.EnumerateFiles(sanitizedFolder, "*.*", SearchOption.AllDirectories))
