@@ -1,16 +1,13 @@
-﻿using System.Diagnostics;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Serilog;
+﻿using Microsoft.Extensions.Hosting;
 
 namespace Eng_FolderMetrics
 {
-    internal sealed class ConsoleHostedService : IHostedService
+    internal sealed class FolderAnalyzeHostedService : IHostedService
     {
         private readonly Serilog.ILogger _logger;
         private readonly IHostApplicationLifetime _appLifetime;
 
-        public ConsoleHostedService(
+        public FolderAnalyzeHostedService(
             Serilog.ILogger logger,
             IHostApplicationLifetime appLifetime)
         {
@@ -27,34 +24,16 @@ namespace Eng_FolderMetrics
                 {
                     try
                     {
-                        _logger.Information("Start Check");
+                        _logger.Information("Start Check:FolderAnalysis");
 
-                        string appSettingValue = System.Configuration.ConfigurationManager.AppSettings["Folders"];
+                        string? appSettingValue = System.Configuration.ConfigurationManager.AppSettings["AnalyzeFolders"];
                         _logger.Information($"App Setting Value: {appSettingValue}");
 
-                        string[] folders = appSettingValue.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
+                        string[] folders = appSettingValue?.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
                             .Select(f => f.Trim())
-                            .ToArray();
-                                            
-                        ParallelOptions options = new ParallelOptions
-                        {
-                            MaxDegreeOfParallelism = 4
-                        };
+                            .ToArray() ?? throw new InvalidOperationException("Invalid AnalyzeFolders App Settings");
+                        
                         Parallel.ForEach(folders, FolderProcessor);
-                        /*
-                        var watch = Stopwatch.StartNew();
-                        add parallel processing
-                        watch.Stop();
-                        _logger.Information($"Parallel foreach loop | Time Taken : {watch.ElapsedMilliseconds} ms.");
-
-                        var watchclassic = Stopwatch.StartNew();
-                        foreach (var folder in folders)
-                        {
-                            FolderProcessor(folder);
-                        }
-                        watchclassic.Stop();
-                        _logger.Information($"Classic foreach loop | Time Taken : {watchclassic.ElapsedMilliseconds} ms.");
-                        */
                     }
                     catch (Exception ex)
                     {
@@ -65,13 +44,13 @@ namespace Eng_FolderMetrics
                         // Stop the application once the work is done
                         _appLifetime.StopApplication();
                     }
-                });
+                }, cancellationToken); // Add the missing closing curly brace here
             });
 
             return Task.CompletedTask;
         }
 
-        private void FolderProcessor(string folder)
+        internal void FolderProcessor(string folder)
         {
             try
             {
@@ -100,20 +79,20 @@ namespace Eng_FolderMetrics
             return Task.CompletedTask;
         }
 
-        static long GetFileLength(string filename)
+        private static long GetFileLength(string filename)
         {
-            long retval;
+            long retrieval;
             try
             {
-                System.IO.FileInfo fi = new System.IO.FileInfo(filename);
-                retval = fi.Length;
+                var fi = new FileInfo(filename);
+                retrieval = fi.Length;
             }
-            catch (System.IO.FileNotFoundException)
+            catch (FileNotFoundException)
             {
                 // If a file is no longer present,  just add zero bytes to the total.  
-                retval = 0;
+                retrieval = 0;
             }
-            return retval;
+            return retrieval;
         }
     }
 
