@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Eng_FolderMetrics.HostedServices;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 
@@ -18,7 +19,7 @@ namespace Eng_FolderMetrics
                 .CreateLogger();
 
             Log.Information("Please enter a numeric Value");
-            Log.Information("Usage: 1. Analyze Folders  2. Copy Folders 3. Find Files and aggregate to One Folder");
+            Log.Information("Usage: 1. Analyze Folders \n 2. Copy Folders \n 3. Find Files and aggregate to One Folder \n 4. Copy files and upload to SharePoint");
             // Get User Input
             var input = Console.ReadLine();
 
@@ -35,10 +36,19 @@ namespace Eng_FolderMetrics
                     Log.Information("Starting up the Deep Copy");
                     CreateDeepCopyHostBuilder(args).Build().Run();
                 }
-                else
+                else if (num == 3)
                 {
                     Log.Information("Starting up the Aggregate Files");
                     CreateAggregateFilesHostBuilder(args).Build().Run();
+                }
+                else if (num == 4)
+                {
+                    Log.Information("Starting up the Copy Files and Upload to SharePoint");
+                    CreateSharePointHostBuilder(args).Build().Run();
+                }
+                else
+                {
+                    Log.Information($"NO logic for this selection {num}");
                 }
             }
             catch (Exception ex)
@@ -50,6 +60,13 @@ namespace Eng_FolderMetrics
                 Log.CloseAndFlush();
             }
         }
+
+        private static IHostBuilder CreateSharePointHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureServices(services =>
+                {
+                    services.AddHostedService<SharePointHostedService>().AddSerilog(Log.Logger);
+                });
 
         public static IHostBuilder CreateFolderAnalyzeHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
@@ -71,5 +88,7 @@ namespace Eng_FolderMetrics
                 {
                     services.AddHostedService<AggregateFilesHostedService>().AddSerilog(Log.Logger);
                 });
+
+
     }
 }

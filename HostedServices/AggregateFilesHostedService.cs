@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Eng_FolderMetrics.Processor;
+using Microsoft.Extensions.Hosting;
 
-namespace Eng_FolderMetrics
+namespace Eng_FolderMetrics.HostedServices
 {
     internal sealed class AggregateFilesHostedService : IHostedService
     {
@@ -62,7 +63,7 @@ namespace Eng_FolderMetrics
             return Task.CompletedTask;
         }
 
-        
+
 
         public Task StopAsync(CancellationToken cancellationToken)
         {

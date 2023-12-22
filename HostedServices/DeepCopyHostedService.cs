@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Eng_FolderMetrics.Processor;
+using Microsoft.Extensions.Hosting;
 
-namespace Eng_FolderMetrics
+namespace Eng_FolderMetrics.HostedServices
 {
     internal sealed class DeepCopyHostedService : IHostedService
     {
@@ -55,7 +56,7 @@ namespace Eng_FolderMetrics
 
         private void DeepCopyProcessing(string? folderInfo)
         {
-            string[] copyFolder = folderInfo?.Split(new[] { '>' }, StringSplitOptions.RemoveEmptyEntries)
+            string?[] copyFolder = folderInfo?.Split(new[] { '>' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(f => f.Trim())
                 .ToArray() ?? throw new InvalidOperationException("Invalid Info in DeepCopy App Settings");
 
@@ -63,8 +64,8 @@ namespace Eng_FolderMetrics
             {
                 throw new InvalidOperationException("Invalid Info in DeepCopy App Settings in" + folderInfo);
             }
-            string fromFolder = copyFolder[0];
-            string toFolder = copyFolder[1];
+            string? fromFolder = copyFolder[0];
+            string? toFolder = copyFolder[1];
 
             _copyProcessor.Copy(fromFolder, toFolder);
             _logger.Information($"Completed copying from {fromFolder} over to {toFolder} ");

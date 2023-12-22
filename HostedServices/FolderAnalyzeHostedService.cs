@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 
-namespace Eng_FolderMetrics
+namespace Eng_FolderMetrics.HostedServices
 {
     internal sealed class FolderAnalyzeHostedService : IHostedService
     {
@@ -32,7 +32,7 @@ namespace Eng_FolderMetrics
                         string[] folders = appSettingValue?.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries)
                             .Select(f => f.Trim())
                             .ToArray() ?? throw new InvalidOperationException("Invalid AnalyzeFolders App Settings");
-                        
+
                         Parallel.ForEach(folders, FolderProcessor);
                     }
                     catch (Exception ex)
@@ -98,5 +98,5 @@ namespace Eng_FolderMetrics
         }
     }
 
-    
+
 }

@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Eng_FolderMetrics;
+namespace Eng_FolderMetrics.Processor;
 
 internal sealed class CopyProcessor
 {
-    public void Copy(string sourceDirectory, string targetDirectory)
+    public void Copy(string? sourceDirectory, string? targetDirectory)
     {
         var diSource = new DirectoryInfo(sourceDirectory);
         var diTarget = new DirectoryInfo(targetDirectory);
