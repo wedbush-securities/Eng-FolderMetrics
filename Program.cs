@@ -4,7 +4,7 @@ using Serilog;
 
 namespace Eng_FolderMetrics
 {
-    
+
     // create console application with logging and exception handing
     public class Program
     {
@@ -50,6 +50,7 @@ namespace Eng_FolderMetrics
                 Log.CloseAndFlush();
             }
         }
+
         public static IHostBuilder CreateFolderAnalyzeHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices(services =>
@@ -71,5 +72,4 @@ namespace Eng_FolderMetrics
                     services.AddHostedService<AggregateFilesHostedService>().AddSerilog(Log.Logger);
                 });
     }
-
 }

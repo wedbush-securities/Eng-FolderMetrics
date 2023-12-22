@@ -20,7 +20,7 @@ namespace Eng_FolderMetrics
             _logger.Information($"Starting with arguments: {string.Join(" ", Environment.GetCommandLineArgs())}");
             _appLifetime.ApplicationStarted.Register(() =>
             {
-                Task.Run(async () =>
+                Task.Run(() =>
                 {
                     try
                     {
@@ -44,6 +44,8 @@ namespace Eng_FolderMetrics
                         // Stop the application once the work is done
                         _appLifetime.StopApplication();
                     }
+
+                    return Task.CompletedTask;
                 }, cancellationToken); // Add the missing closing curly brace here
             });
 
