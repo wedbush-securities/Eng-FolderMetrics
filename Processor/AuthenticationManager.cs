@@ -14,9 +14,12 @@ namespace Eng_FolderMetrics.Processor
     internal class AuthenticationManager : IDisposable
     {
         private static readonly HttpClient httpClient = new HttpClient();
-        private const string tokenEndpoint = "https://login.microsoftonline.com/common/oauth2/token";
+        //private const string tokenEndpoint = "https://login.microsoftonline.com/wedbush/oauth2/token";
+        //private const string tokenEndpoint ="https://login.microsoftonline.com/296c5d32-91cc-45e5-bc0c-26df2ced0334/oauth2/authorize?client%5Fid=00000003%2D0000%2D0ff1%2Dce00%2D000000000000&response%5Fmode=form%5Fpost&response%5Ftype=code%20id%5Ftoken&resource=00000003%2D0000%2D0ff1%2Dce00%2D000000000000&scope=openid&nonce=E989A383DCE83BFAE8F0F8C1E0EF0E37651CDC3528A15DF2%2DDA47E8FD91FB51AD61D9D92D1D830B84B3527046E5077752475FFB1F971CCAB1&redirect%5Furi=https%3A%2F%2Fwedbush%2Esharepoint%2Ecom%2F%5Fforms%2Fdefault%2Easpx&state=OD0w&claims=%7B%22id%5Ftoken%22%3A%7B%22xms%5Fcc%22%3A%7B%22values%22%3A%5B%22CP1%22%5D%7D%7D%7D&wsucxt=1&cobrandid=11bd8083%2D87e0%2D41b5%2Dbb78%2D0bc43c8a8e8a&client%2Drequest%2Did=b458faa0%2D90ee%2D4000%2Da688%2D7c048cd6cae4&sso_reload=true";
+        private const string tokenEndpoint = "https://login.microsoftonline.com/B2C_1A_SUSI_ADFED/oauth2/v2.0/authorize";
+        //private const string
 
-        private const string defaultAADAppId = "986002f6-c3f6-43ab-913e-78cca185c392";
+        private const string defaultAADAppId = "c34e4937-a6a2-4607-8e22-c377ed0708ef";
 
         // Token cache handling
         private static readonly SemaphoreSlim semaphoreSlimTokens = new SemaphoreSlim(1);

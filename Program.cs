@@ -5,8 +5,6 @@ using Serilog;
 
 namespace Eng_FolderMetrics
 {
-
-    // create console application with logging and exception handing
     public class Program
     {
         public static void Main(string[] args)

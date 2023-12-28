@@ -43,17 +43,27 @@ namespace Eng_FolderMetrics.HostedServices
                         if (lstSharePointInfo != null)
                         {
                             _logger.Information($"Got config Entries Count:{lstSharePointInfo.Count}");
-                            SecureString? pwd = GetPassword(_logger);
-                            // set password on all the objects
-                            if (pwd != null && pwd.Length > 1)
+
+                            foreach (var info in lstSharePointInfo)
                             {
-                                lstSharePointInfo.Select(c =>
+                                if (info.username != null)
                                 {
-                                    c.pass = pwd;
-                                    return c;
-                                }).ToList();
+                                    SecureString? pwd = GetPassword(_logger, info.username);
+                                    // set password on all the objects
+                                    if (pwd != null && pwd.Length > 1)
+                                    {
+                                        info.pass = pwd;
+                                        pwd= null;
+                                    }
+                                    SharePointProcessing(info);
+                                }
                             }
-                            Parallel.ForEach(lstSharePointInfo, SharePointProcessing);
+                            //lstSharePointInfo.Select(c =>
+                            //{
+                            //    c.pass = pwd;
+                            //    return c;
+                            //}).ToList();
+                            // Parallel.ForEach(lstSharePointInfo, SharePointProcessing);
                         }
                     }
                     catch (Exception ex)
@@ -73,12 +83,12 @@ namespace Eng_FolderMetrics.HostedServices
             return Task.CompletedTask;
         }
 
-        private SecureString? GetPassword(ILogger logger)
+        private SecureString? GetPassword(ILogger logger, string username)
         {
             SecureString? sStrPwd = new SecureString();
             try
             {
-                logger.Information("Password: ");
+                logger.Information($"Type Password for Username: {username} ");
 
                 for (ConsoleKeyInfo keyInfo = Console.ReadKey(true);
                      keyInfo.Key != ConsoleKey.Enter;
@@ -118,7 +128,8 @@ namespace Eng_FolderMetrics.HostedServices
             if (spInfo != null && !string.IsNullOrEmpty(spInfo.fromfolder) && !string.IsNullOrEmpty(spInfo.tofolder))
             {
                 _copyProcessor.Copy(spInfo.fromfolder, spInfo.tofolder);
-
+                SharepointProcessor processor = new SharepointProcessor();
+                processor.UploadToSharePoint(spInfo);
             }
             else
             {
