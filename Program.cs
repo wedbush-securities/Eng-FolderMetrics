@@ -17,7 +17,7 @@ namespace Eng_FolderMetrics
                 .CreateLogger();
 
             Log.Information("Please enter a numeric Value");
-            Log.Information("Usage: 1. Analyze Folders \n 2. Copy Folders \n 3. Find Files and aggregate to One Folder \n 4. Copy files and upload to SharePoint");
+            Log.Information("Usage: 1. Analyze Folders \n 2. Copy Folders \n 3. Find Files and aggregate to One Folder \n 4. Copy files and upload to SharePoint \n 5. FolderAnalyze -Files older than Date");
             // Get User Input
             var input = Console.ReadLine();
 
@@ -44,6 +44,11 @@ namespace Eng_FolderMetrics
                     Log.Information("Starting up the Copy Files and Upload to SharePoint");
                     CreateSharePointHostBuilder(args).Build().Run();
                 }
+                else if (num == 5)
+                {
+                    Log.Information("Starting up the File Analyzer");
+                    createFileAnalyzeHostBuilder(args).Build().Run();
+                }
                 else
                 {
                     Log.Information($"NO logic for this selection {num}");
@@ -58,6 +63,13 @@ namespace Eng_FolderMetrics
                 Log.CloseAndFlush();
             }
         }
+
+        private static IHostBuilder createFileAnalyzeHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureServices(services =>
+                {
+                    services.AddHostedService<FileAnalyzeHostedService>().AddSerilog(Log.Logger);
+                });
 
         private static IHostBuilder CreateSharePointHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
