@@ -17,7 +17,12 @@ namespace Eng_FolderMetrics
                 .CreateLogger();
 
             Log.Information("Please enter a numeric Value");
-            Log.Information("Usage: 1. Analyze Folders \n 2. Copy Folders \n 3. Find Files and aggregate to One Folder \n 4. Copy files and upload to SharePoint \n 5. FolderAnalyze -Files older than Date");
+            Log.Information("Usage: 1. Analyze Folders \n 2. Copy Folders \n 3. Find Files and aggregate to One Folder " +
+                            "\n 4. Copy files and upload to SharePoint " +
+                            "\n 5. FolderAnalyze -Files older than Date With Security Check" +
+                            "\n 6. FolderAnalyze -Files older than Date w/o Security Check" +
+                            "\n 7. FolderAnalyze w/o DateCheck w/o Security Check" +
+                            "\n 8. WebEx API to MS Teams");
             // Get User Input
             var input = Console.ReadLine();
 
@@ -47,7 +52,22 @@ namespace Eng_FolderMetrics
                 else if (num == 5)
                 {
                     Log.Information("Starting up the File Analyzer");
-                    createFileAnalyzeHostBuilder(args).Build().Run();
+                    createFileAnalyzeHostBuilder(args, true, true).Build().Run();
+                }
+                else if (num == 6)
+                {
+                    Log.Information("Starting up the File Analyzer");
+                    createFileAnalyzeHostBuilder(args, false, true).Build().Run();
+                }
+                else if (num == 7)
+                {
+                    Log.Information("Starting up the Webex API");
+                    createFileAnalyzeHostBuilder(args, false, false).Build().Run();
+                }
+                else if (num == 8)
+                {
+                    Log.Information("Starting up the Webex API");
+                    createWebexAPIHostBuilder(args).Build().Run();
                 }
                 else
                 {
@@ -64,11 +84,18 @@ namespace Eng_FolderMetrics
             }
         }
 
-        private static IHostBuilder createFileAnalyzeHostBuilder(string[] args) =>
+        private static IHostBuilder createWebexAPIHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices(services =>
                 {
-                    services.AddHostedService<FileAnalyzeHostedService>().AddSerilog(Log.Logger);
+                    services.AddHostedService<WebexAPPIHostedService>().AddSerilog(Log.Logger);
+                });
+
+        private static IHostBuilder createFileAnalyzeHostBuilder(string[] args, bool isSecCheck, bool isDtCheck) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureServices((hostContext, services) =>
+                {
+                    services.AddHostedService<FileAnalyzeHostedService>(sp => new FileAnalyzeHostedService(Log.Logger, sp.GetService<IHostApplicationLifetime>(), isSecCheck, isDtCheck));
                 });
 
         private static IHostBuilder CreateSharePointHostBuilder(string[] args) =>

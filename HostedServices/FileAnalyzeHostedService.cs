@@ -5,6 +5,7 @@ using System.DirectoryServices.AccountManagement;
 using System.IO;
 using System.Text;
 using System.Data;
+using Serilog;
 
 namespace Eng_FolderMetrics.HostedServices
 {
@@ -13,14 +14,21 @@ namespace Eng_FolderMetrics.HostedServices
         private readonly Serilog.ILogger _logger;
         private readonly IHostApplicationLifetime _appLifetime;
         private string? fileDate;
+        private bool _isSecurityCheck;
+        private bool _isDateCheck;
 
         public FileAnalyzeHostedService(
             Serilog.ILogger logger,
-            IHostApplicationLifetime appLifetime)
-        {
+            IHostApplicationLifetime appLifetime,
+            bool isSecurityCheck,
+            bool isDateCheck)
+        { // add parameter 
             _logger = logger;
             _appLifetime = appLifetime;
+            _isSecurityCheck = isSecurityCheck;
+            _isDateCheck = isDateCheck;
         }
+
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.Information($"Starting with arguments: {string.Join(" ", Environment.GetCommandLineArgs())}");
@@ -95,7 +103,15 @@ namespace Eng_FolderMetrics.HostedServices
 
                 foreach (FileInfo fileInfo in directoryInfo.EnumerateFiles("*.*", SearchOption.AllDirectories))
                 {
-                    if (fileInfo.LastWriteTime >= targetDate)
+                    if (_isDateCheck)
+                    {
+                        if (fileInfo.LastWriteTime >= targetDate)
+                        {
+                            totalBytes += fileInfo.Length;
+                            fileCount++;
+                        }
+                    }
+                    else
                     {
                         totalBytes += fileInfo.Length;
                         fileCount++;
@@ -106,7 +122,7 @@ namespace Eng_FolderMetrics.HostedServices
 
                 //Security Information
                 // Create a new DirectoryInfo object.
-                GetSecurityInfoforDir(folder);
+                if(_isSecurityCheck) GetSecurityInfoforDir(folder);
             }
             catch (Exception ex)
             {

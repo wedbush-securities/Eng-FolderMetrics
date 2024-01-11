@@ -127,7 +127,7 @@ namespace Eng_FolderMetrics.HostedServices
         {
             if (spInfo != null && !string.IsNullOrEmpty(spInfo.fromfolder) && !string.IsNullOrEmpty(spInfo.tofolder))
             {
-                _copyProcessor.Copy(spInfo.fromfolder, spInfo.tofolder);
+                //_copyProcessor.Copy(spInfo.fromfolder, spInfo.tofolder);
                 SharepointProcessor processor = new SharepointProcessor();
                 processor.UploadToSharePoint(spInfo);
             }
